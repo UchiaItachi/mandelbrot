@@ -138,15 +138,18 @@ void display(GLFWwindow *window, int WIDTH, int HEIGHT)
     // specify initial window size in the X-Y plane
     double xmin = -2, xmax = 1, ymin = -1.5, ymax = 1.5;
 
-    int choice;  // user selection of appropriate quadrant
-                 //
-                 //        |
-                 //    1   |   2
-                 //        |
-                 //   -----+-----
-                 //        |
-                 //    3   |   4
-                 //        |
+    // user selection of appropriate quadrant
+    int choice;  
+
+    std::cout << " +------+------+ " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " |  1   |   2  | " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " +------+------+ " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " |  3   |   4  | " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " +------+------+ " << std::endl;
 
     // infinite loop until user kills this process
     while(true)
