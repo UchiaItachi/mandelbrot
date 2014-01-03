@@ -35,12 +35,11 @@ int Mandelbrot_Member(double x, double y, const int MAX_ITER)
 // calculate pixel colors for the current graphics window, defined by the
 // minimum and maximum X and Y coordinates
 
-void showMandelbrot(GLFWwindow *window, int WIDTH, int HEIGHT, double xmin, double xmax, double ymin, double ymax)
+void showMandelbrot(int WIDTH, int HEIGHT, double xmin, double xmax, double ymin, double ymax)
 {
     //--------------------------------
     //  OpenGL initialization stuff 
     //--------------------------------
-    glfwGetFramebufferSize(window, &WIDTH, &HEIGHT);
 
     // select background color to be white
     // R = 1, G = 1, B = 1, alpha = 0
@@ -120,67 +119,10 @@ void showMandelbrot(GLFWwindow *window, int WIDTH, int HEIGHT, double xmin, doub
       }
     }
 
+    // draw the horizontal and vertical centerlines for the window
     glColor3f(1,1,1);
     glRectf(xmin+(xmax-xmin)/2-1.95*dx,ymin,xmin+(xmax-xmin)/2+1.95*dx,ymax);
     glRectf(xmin,ymin+(ymax-ymin)/2-1.95*dy,xmax,ymin+(ymax-ymin)/2+1.95*dy);
-
-    // swap front and back buffers
-    glfwSwapBuffers(window);
-
-    // poll for and processs events
-    glfwPollEvents();
-}
-
-// Entry point for the display routine
-
-void display(GLFWwindow *window, int WIDTH, int HEIGHT)
-{
-    // specify initial window size in the X-Y plane
-    double xmin = -2, xmax = 1, ymin = -1.5, ymax = 1.5;
-
-    // user selection of appropriate quadrant
-    int choice;  
-
-    std::cout << " +------+------+ " << std::endl;
-    std::cout << " |      |      | " << std::endl;
-    std::cout << " |  1   |   2  | " << std::endl;
-    std::cout << " |      |      | " << std::endl;
-    std::cout << " +------+------+ " << std::endl;
-    std::cout << " |      |      | " << std::endl;
-    std::cout << " |  3   |   4  | " << std::endl;
-    std::cout << " |      |      | " << std::endl;
-    std::cout << " +------+------+ " << std::endl;
-
-    // infinite loop until user kills this process
-    while(true)
-    {
-        // display the Mandelbrot set in (xmin,ymin)-(xmax,ymax)
-        showMandelbrot(window, WIDTH, HEIGHT, xmin,xmax,ymin,ymax);
-
-        // ask user for selecting a region for further zoom-in
-        std::cout << "Zoom in to <1,2,3,4>: ";
-        std::cin >> choice;
-
-        // update display limits based on user choice
-        switch (choice) {
-            case 1:
-                xmax = xmin + (xmax - xmin)/2; 
-                ymin = ymin + (ymax - ymin)/2;
-                break;
-            case 2:
-                xmin = xmin + (xmax - xmin)/2; 
-                ymin = ymin + (ymax - ymin)/2;
-                break;
-            case 3:
-                xmax = xmin + (xmax - xmin)/2; 
-                ymax = ymin + (ymax - ymin)/2;
-                break;
-            case 4:
-                xmin = xmin + (xmax - xmin)/2; 
-                ymax = ymin + (ymax - ymin)/2;
-                break;
-        }
-    }
 }
 
 int main(int argc, char* argv[])
@@ -214,10 +156,59 @@ int main(int argc, char* argv[])
     // Loop until the user closes the window
     //---------------------------------------
 
+    // user selection of appropriate quadrant for zooming in
+    int choice;  
+
+    std::cout << " +------+------+ " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " |  1   |   2  | " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " +------+------+ " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " |  3   |   4  | " << std::endl;
+    std::cout << " |      |      | " << std::endl;
+    std::cout << " +------+------+ " << std::endl;
+
+    // specify initial window size in the X-Y plane
+    double xmin = -2, xmax = 1, ymin = -1.5, ymax = 1.5;
+
     while(!glfwWindowShouldClose(window))
     {
-        // render function
-        display(window, WIDTH, HEIGHT);
+        // display the Mandelbrot set in (xmin,ymin)-(xmax,ymax)
+        showMandelbrot(WIDTH, HEIGHT, xmin, xmax, ymin, ymax);
+
+        // swap front and back buffers
+        glfwSwapBuffers(window);
+
+        // poll for and processs events
+        glfwPollEvents();
+
+        // ask user for selecting a region for further zoom-in
+        std::cout << "Zoom in to <1, 2, 3, 4> [0 to quit]:";
+        std::cin >> choice;
+
+        // update display limits based on user choice
+        switch (choice) {
+            case 0:
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case 1:
+                xmax = xmin + (xmax - xmin)/2; 
+                ymin = ymin + (ymax - ymin)/2;
+                break;
+            case 2:
+                xmin = xmin + (xmax - xmin)/2; 
+                ymin = ymin + (ymax - ymin)/2;
+                break;
+            case 3:
+                xmax = xmin + (xmax - xmin)/2; 
+                ymax = ymin + (ymax - ymin)/2;
+                break;
+            case 4:
+                xmin = xmin + (xmax - xmin)/2; 
+                ymax = ymin + (ymax - ymin)/2;
+                break;
+        }
     }
 
     glfwDestroyWindow(window);
