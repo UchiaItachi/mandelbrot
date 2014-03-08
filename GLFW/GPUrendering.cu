@@ -25,7 +25,7 @@ public:
     double re;   // real component
     double im;   // imaginary component
 
-// function to calculate the magnitude or absolute value of the complex number
+// calculate the magnitude or absolute value of the complex number 
 // this function is called from and executes on the device (GPU) 
 
 __device__ double magnitude()
@@ -35,8 +35,9 @@ __device__ double magnitude()
 
 };
 
-// kernel to check all points inside the specified window for membership in the set
-// and calculate an appropriate pixel colors for each point
+// kernel to check all points inside the specified window for 
+// membership in the set and calculate an appropriate pixel color 
+// for each point
 
 __global__ void calculateMandelbrot(const int WIDTH,
                                     const int HEIGHT,
@@ -61,8 +62,8 @@ __global__ void calculateMandelbrot(const int WIDTH,
     int offset = i + WIDTH*j;
 
     // calculate (x,y) potition
-    double x = xmin + (double) i*dx;   // actual x coordinate (real component)
-    double y = ymin + (double) j*dy;   // actual y coordinate (imaginary component)
+    double x = xmin + (double) i*dx;   // actual x coordinate (real part)
+    double y = ymin + (double) j*dy;   // actual y coordinate (imaginary part)
 
     // carry out the iterative check
     // z <---- z*z + c
@@ -88,9 +89,8 @@ __global__ void calculateMandelbrot(const int WIDTH,
 
     // "iter" now stores how many iterations were required for divergence
     // for points outside the Mandelbrot set, this is typically a small number
-    // points inside the set do not diverge and thus iter is a large number for such points
-
-    // assign pixel color based on the number of iterations - Red Green Blue (RGB) 
+    // points inside the set do not diverge and thus iter is a large number
+    // assign pixel color based on the number of iterations
 
     float R, G, B;
 
@@ -143,7 +143,13 @@ __global__ void calculateMandelbrot(const int WIDTH,
 
 // minimum and maximum X and Y coordinates
 
-void showMandelbrot(GLFWwindow *window, int WIDTH, int HEIGHT, double xmin, double xmax, double ymin, double ymax)
+void showMandelbrot(GLFWwindow *window,
+                           int WIDTH,
+                           int HEIGHT,
+                           double xmin,
+                           double xmax,
+                           double ymin,
+                           double ymax)
 {
     //----------------------------------------------------------------
     //  Use GPU for calculating the 2D array of "iterations to escape"
@@ -172,10 +178,15 @@ void showMandelbrot(GLFWwindow *window, int WIDTH, int HEIGHT, double xmin, doub
     // generate a pixel buffer object (PBO)
     glGenBuffers(1, &bufferObj);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferObj);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, WIDTH * HEIGHT * 4, NULL, GL_DYNAMIC_DRAW_ARB);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 
+                 WIDTH * HEIGHT * 4, 
+                 NULL, 
+                 GL_DYNAMIC_DRAW_ARB);
 
     // register "bufferObj" with the CUDA runtime as a graphics resource
-    cudaGraphicsGLRegisterBuffer(&resource, bufferObj, cudaGraphicsMapFlagsNone);
+    cudaGraphicsGLRegisterBuffer(&resource, 
+                                 bufferObj, 
+                                 cudaGraphicsMapFlagsNone);
 
     // create a pointer in device memory for CUDA to use the buffer object
     uchar4* devPtr;
@@ -195,7 +206,11 @@ void showMandelbrot(GLFWwindow *window, int WIDTH, int HEIGHT, double xmin, doub
 
     dim3 blocks( bx, by, 1);
 
-    calculateMandelbrot<<<blocks,threads>>>(WIDTH, HEIGHT, xmin, xmax, ymin, ymax, devPtr, MAX_ITER);
+    // invoke CUDA kernel to calculate pixel colors
+    calculateMandelbrot<<<blocks,threads>>>(WIDTH, HEIGHT, 
+                                            xmin, xmax, 
+                                            ymin, ymax, 
+                                            devPtr, MAX_ITER);
 
     // make sure CUDA kernel is finished before plotting the results
     cudaGraphicsUnmapResources(1, &resource, NULL);
